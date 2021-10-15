@@ -1,24 +1,9 @@
-from discord.ext import commands
 from binance import Client
 from binance import BinanceSocketManager
 import pandas as pd
-import ccxt
 import asyncio
 import sys
 import time
-
-
-# class BotMacd(commands.Cog, name="BotMACD"):
-#     def __init__(self, client, binance):
-#         self.client = client
-#         self.binance = binance
-
-#     @commands.command(brief="bot with strat macd", description="just type /start like bellow..")
-#     async def start(self, ctx):
-#         balance = self.binance.fetch_balance()
-
-#         await ctx.send(f"###### Your Balance : #######\n\n{strFormat}\n========================")
-
 
 apiKey = 'fmJFIHzmHYcuU7DUfWmTq5Bxpuj50gkD3C3YChYAMIpJlLAos3w5rG7aRFIw8VHd'
 apiSecret = 'kzfH3z36eP1iDAl5WymrEYsDIvwgCbsuXFVZo4WoIjqUvdL9Sas0Ya36VPhoSEd3'
