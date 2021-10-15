@@ -16,7 +16,7 @@ def get_top_symbol():
     x = pd.DataFrame(binance.get_ticker())
     relev = x[x.symbol.str.contains('USDT')]
     nonLevarage = relev[~((relev.symbol.str.contains('UP'))
-                          | (relev.symbol.str.contains('DOWN')))]
+                          | (relev.symbol.str.contains('BTC')))]
     topSymbol = nonLevarage[nonLevarage.priceChangePercent ==
                             nonLevarage.priceChangePercent.max()]
     topSymbol = topSymbol.symbol.values[0]
@@ -67,6 +67,7 @@ async def strategy(buy_amount, sl=0.985, Target=1.02, open_position=False):
     socket = bsm.trade_socket(asset)
     df = get_minute_data(asset, '1m', '120')
     qty = round(buy_amount/df.Close.iloc[-1])
+    print(qty)
     if qty > 0:
         macd = ((df.Close.pct_change()+1).cumprod()).iloc[-1]
         print(f'macd value : {macd}')
@@ -105,7 +106,7 @@ async def strategy(buy_amount, sl=0.985, Target=1.02, open_position=False):
 async def main():
     print('connect to the app ...')
     while True:
-        await strategy(500)
+        await strategy(6000)
 
 loop = asyncio.get_event_loop()
 loop.create_task(main())
