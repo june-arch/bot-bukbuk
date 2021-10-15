@@ -103,6 +103,7 @@ async def strategy(buy_amount, sl=0.985, Target=1.02, open_position=False):
 
 
 async def main():
+    print('connect to the app ...')
     while True:
         await strategy(500)
 
