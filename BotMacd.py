@@ -67,10 +67,9 @@ async def strategy(buy_amount, sl=0.985, Target=1.02, open_position=False):
     socket = bsm.trade_socket(asset)
     df = get_minute_data(asset, '1m', '120')
     qty = round(buy_amount/df.Close.iloc[-1])
-    print(qty)
     if qty > 0:
         macd = ((df.Close.pct_change()+1).cumprod()).iloc[-1]
-        print(f'macd value : {macd}')
+        print(f'macd value : {macd} amount to buy : {qty}')
         if macd > 1:
             order = binance.create_order(
                 symbol=asset, side='BUY', type='MARKET', quantity=qty)
@@ -106,7 +105,7 @@ async def strategy(buy_amount, sl=0.985, Target=1.02, open_position=False):
 async def main():
     print('connect to the app ...')
     while True:
-        await strategy(6000)
+        await strategy(500)
 
 loop = asyncio.get_event_loop()
 loop.create_task(main())
