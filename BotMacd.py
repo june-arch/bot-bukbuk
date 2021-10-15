@@ -104,7 +104,7 @@ async def strategy(buy_amount, sl=0.985, Target=1.02, open_position=False):
 
 async def main():
     while True:
-        await strategy(300)
+        await strategy(500)
 
 loop = asyncio.get_event_loop()
 loop.create_task(main())
