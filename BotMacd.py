@@ -80,7 +80,8 @@ async def strategy(buy_amount, sl=0.985, Target=1.02, open_position=False):
                 print(f'failed to buy because error : {e}')
                 countdown(31)
             print(order)
-            buyprice = float(order['fills'][0]['price'])
+            if not order['fills']:
+                buyprice = float(order['fills'][0]['price'])
             open_position = True
             while open_position:
                 print('\n')
