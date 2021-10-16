@@ -99,7 +99,9 @@ async def strategy(buy_amount, sl=0.985, Target=1.02, open_position=False):
                     except Exception as e:
                         print(f'failed to sell because error : {e}')
                         countdown(31)
-                    sellprice = float(order['fills'][0]['price'])
+                    sellprice = ''
+                    if not order['fills']:
+                        sellprice = float(order['fills'][0]['price'])
                     document = {'id': str(uuid.uuid4()), 'symbol': asset, 'buyPrice': buyprice, 'sellPrice': sellprice, 'targetPrice': str(
                         buyprice*Target), 'stopPrice': str(buyprice*sl), 'currentPrice': str(df['Price'].values[-1]), 'date': datetime.now(), 'resultOrder': order}
                     insertData = insertOne(document, 'historyTransactions')
