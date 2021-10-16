@@ -76,8 +76,7 @@ async def strategy(buy_amount, sl=0.985, Target=1.02, open_position=False):
             order = binance.create_order(
                 symbol=asset, side='BUY', type='MARKET', quantity=qty)
             print(order)
-            if not order['fills']:
-                buyprice = float(order['fills'][0]['price'])
+            buyprice = float(order['fills'][0]['price'])
             open_position = True
             while open_position:
                 print('\n')
@@ -93,7 +92,7 @@ async def strategy(buy_amount, sl=0.985, Target=1.02, open_position=False):
                     order = binance.create_order(
                         symbol=asset, side='SELL', type='MARKET', quantity=qty)
                     sellprice = ''
-                    if not order['fills']:
+                    if order['fills']:
                         sellprice = float(order['fills'][0]['price'])
                     document = {'id': str(uuid.uuid4()), 'symbol': asset, 'buyPrice': buyprice, 'sellPrice': sellprice, 'targetPrice': str(
                         buyprice*Target), 'stopPrice': str(buyprice*sl), 'currentPrice': str(df['Price'].values[-1]), 'date': datetime.now(), 'resultOrder': order}
