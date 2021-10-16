@@ -76,12 +76,11 @@ async def strategy(buy_amount, sl=0.985, Target=1.02, open_position=False):
             try:
                 order = binance.create_order(
                     symbol=asset, side='BUY', type='MARKET', quantity=qty)
+                buyprice = float(order['fills'][0]['price'])
             except Exception as e:
                 print(f'failed to buy because error : {e}')
                 countdown(31)
             print(order)
-            if not order['fills']:
-                buyprice = float(order['fills'][0]['price'])
             open_position = True
             while open_position:
                 print('\n')
@@ -97,17 +96,15 @@ async def strategy(buy_amount, sl=0.985, Target=1.02, open_position=False):
                     try:
                         order = binance.create_order(
                             symbol=asset, side='SELL', type='MARKET', quantity=qty)
+                        sellprice = float(order['fills'][0]['price'])
                     except Exception as e:
                         print(f'failed to sell because error : {e}')
                         countdown(31)
-                    sellprice = ''
-                    if not order['fills']:
-                        sellprice = float(order['fills'][0]['price'])
+                    print(order)
                     document = {'id': str(uuid.uuid4()), 'symbol': asset, 'buyPrice': buyprice, 'sellPrice': sellprice, 'targetPrice': str(
                         buyprice*Target), 'stopPrice': str(buyprice*sl), 'currentPrice': str(df['Price'].values[-1]), 'date': datetime.now(), 'resultOrder': order}
                     insertData = insertOne(document, 'historyTransactions')
                     print(insertData)
-                    print(order)
                     print('\n================\n')
                     break
         else:
