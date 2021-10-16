@@ -4,6 +4,10 @@ import pandas as pd
 import asyncio
 import sys
 import time
+from datetime import datetime
+from db import insertOne
+import uuid
+
 
 apiKey = 'fmJFIHzmHYcuU7DUfWmTq5Bxpuj50gkD3C3YChYAMIpJlLAos3w5rG7aRFIw8VHd'
 apiSecret = 'kzfH3z36eP1iDAl5WymrEYsDIvwgCbsuXFVZo4WoIjqUvdL9Sas0Ya36VPhoSEd3'
@@ -21,7 +25,6 @@ def get_top_symbol():
                             nonLevarage.priceChangePercent.max()]
     topSymbol = topSymbol.symbol.values[0]
     return topSymbol
-    # return 'BNBBUSD'
 
 
 def get_minute_data(symbol, interval, lookback):
@@ -57,7 +60,6 @@ def countdown(t, step=1, msg='sleeping'):  # in seconds
 
 
 async def strategy(buy_amount, sl=0.985, Target=1.02, open_position=False):
-    history = []
     try:
         asset = get_top_symbol()
         print('top symbol now : ' + asset)
@@ -71,8 +73,12 @@ async def strategy(buy_amount, sl=0.985, Target=1.02, open_position=False):
         macd = ((df.Close.pct_change()+1).cumprod()).iloc[-1]
         print(f'macd value : {macd} amount to buy : {qty}')
         if macd > 1:
-            order = binance.create_order(
-                symbol=asset, side='BUY', type='MARKET', quantity=qty)
+            try:
+                order = binance.create_order(
+                    symbol=asset, side='BUY', type='MARKET', quantity=qty)
+            except Exception as e:
+                print(f'failed to buy because error : {e}')
+                countdown(31)
             print(order)
             buyprice = float(order['fills'][0]['price'])
             open_position = True
@@ -87,13 +93,19 @@ async def strategy(buy_amount, sl=0.985, Target=1.02, open_position=False):
                 print(f'current Target is ' + str(buyprice*Target))
                 print(f'current Stop is ' + str(buyprice*sl))
                 if df.Price.values <= buyprice * sl or df.Price.values >= buyprice * Target:
-                    order = binance.create_order(
-                        symbol=asset, side='SELL', type='MARKET', quantity=qty)
-                    history.append({'buyPrice': buyprice, 'sellPrice': float(
-                        order['fills'][0]['price']), 'targetPrice': str(buyprice*Target), 'stopPrice': str(buyprice*sl)})
+                    try:
+                        order = binance.create_order(
+                            symbol=asset, side='SELL', type='MARKET', quantity=qty)
+                    except Exception as e:
+                        print(f'failed to sell because error : {e}')
+                        countdown(31)
+                    sellprice = float(order['fills'][0]['price'])
+                    document = {'id': str(uuid.uuid4()), 'symbol': asset, 'buyPrice': buyprice, 'sellPrice': sellprice, 'targetPrice': str(
+                        buyprice*Target), 'stopPrice': str(buyprice*sl), 'currentPrice': str(df['Price'].values[-1]), 'date': datetime.now(), 'resultOrder': order}
+                    insertData = insertOne(document, 'historyTransactions')
+                    print(insertData)
                     print(order)
                     print('\n================\n')
-                    print(history)
                     break
         else:
             print('not yet to cross macd')
